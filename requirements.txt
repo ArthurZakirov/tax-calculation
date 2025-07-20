@@ -1,0 +1,3 @@
+notion2pandas
+pandas
+dotenv
