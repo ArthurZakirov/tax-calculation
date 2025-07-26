@@ -9,7 +9,7 @@ def sum_of_category_abs(df: pd.DataFrame, category: str) -> float:
     """
     Sums the absolute values of the 'Amount (EUR)' column for a given ELSTER category.
     """
-    return abs(df[df["ELSTER Kategorie"].str.contains(category)]["Amount (EUR)"].sum())
+    return round(abs(df[df["ELSTER Kategorie"].str.contains(category)]["Amount (EUR)"].sum().item()), 2)
 
 
 def load_processed_transactions():

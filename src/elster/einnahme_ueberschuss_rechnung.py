@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any, Dict, Tuple
+from typing import Any, Dict
 
 import pandas as pd
 
@@ -22,9 +22,7 @@ def label_vat_paid_transactions(df):
     )
 
 
-def calculate_eur(
-    df: pd.DataFrame, schema: Dict[str, Any]
-) -> Tuple[Dict[str, Any], float, float, float]:
+def calculate_eur(df: pd.DataFrame, schema: Dict[str, Any]) -> Dict[str, Any]:
     """Calculate the EÜR section of the ELSTER schema.
 
     Parameters
@@ -56,24 +54,22 @@ def calculate_eur(
             multiplier = (
                 BRUTTO_TO_UST if subcategory == "Gezahlte Vorsteuerbeträge" else 1
             )
-            ausgaben[ausgaben_kategorie][subcategory] = (
-                multiplier
-                * sum_of_category_abs(df, ausgaben[ausgaben_kategorie][subcategory])
+            ausgaben[ausgaben_kategorie][subcategory] = round(
+                (multiplier * sum_of_category_abs(df, subcategory)), 2
             )
 
     # Einnahmen
-    einnahmen = results["EÜR"]["3 - 1. Betriebseinnahmen"]
+    einnahmen = results["EÜR"]["3 - 1. Betriebseinnahmen"]["Sonstige Betriebseinnahmen"]
     refunds = einnahmen["Sonstige Sach- Nutzungs- und Leistungsentnahmen"]
     refunds = sum_of_category_abs(df, "Sonstige Sach- Nutzungs- und Leistungsentnahmen")
 
-
     # Bilanz
-    gewinn = refunds - (
-        sum(leistungen.values()) + sum(afa.values()) + sum(sonstige.values())
-    )
+    bilanz = results["EÜR"]["Bilanz"]
+    bilanz["Einnahmen"] = refunds
+    bilanz["Ausgaben"] = round(sum(leistungen.values()) + sum(afa.values()) + sum(sonstige.values()), 2)
+    bilanz["Gewinn"] = round(bilanz["Einnahmen"] - bilanz["Ausgaben"], 2)
 
     # Transfers
-    privat_entnahme = sum_of_category_abs(df, "Privateentnahme")
-    privat_einlage = sum_of_category_abs(df, "Privateinlage")
-
-    return results, gewinn, privat_entnahme, privat_einlage
+    bilanz["Privateentnahme"] = sum_of_category_abs(df, "Privateentnahme")
+    bilanz["Privateinlage"] = sum_of_category_abs(df, "Privateinlage")
+    return results

@@ -35,6 +35,13 @@
                 "Gezahlte Vorsteuerbeträge": 0,
                 "An das Finanzamt gezahlte und ggf. verrechnete Umsatzsteuer": 0
             }
+        },
+        "Bilanz":{
+            "Einnahmen": 0,
+            "Ausgaben": 0,
+            "Gewinn": 0,
+            "Privatentnahme": 0,
+            "Privateinlage": 0
         }
     },
     "ESt":{

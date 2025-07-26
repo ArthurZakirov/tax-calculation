@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 import pandas as pd
 
 UST_SATZ = 0.19
-BRUTTO_TO_UST = UST_SATZ / (1 + UST_SATZ)
+BRUTTO_TO_UST = round(UST_SATZ / (1 + UST_SATZ), 2)
 
 
 def calculate_ust(
