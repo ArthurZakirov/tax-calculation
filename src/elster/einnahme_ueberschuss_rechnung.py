@@ -62,7 +62,10 @@ def calculate_eur(
             )
 
     # Einnahmen
+    einnahmen = results["EÜR"]["3 - 1. Betriebseinnahmen"]
+    refunds = einnahmen["Sonstige Sach- Nutzungs- und Leistungsentnahmen"]
     refunds = sum_of_category_abs(df, "Sonstige Sach- Nutzungs- und Leistungsentnahmen")
+
 
     # Bilanz
     gewinn = refunds - (
