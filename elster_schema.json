@@ -1,0 +1,51 @@
+{
+    "EÜR": {
+        "3 - 1. Betriebseinnahmen": {
+            "Umsatzsteuerlicher Kleinunternehmer": {
+                "Betriebseinnahmen als umsatzsteuerlicher Kleinunternehmer": 0,
+                "Betriebseinnahmen als umsatzsteuerlicher Kleinunternehmer: davon nicht steuerbare Umsätze sowie Umsätze nach § 19 Abs. 3 Satz 1 Nr. 1 und 2 UStG": 0,
+                "Betriebseinnahmen als umsatzsteuerlicher Kleinunternehmer: davon steuerbar": 0
+            },
+            "Umsatzsteuerliche Regelbesteuerung": {
+                "Betriebseinnahmen, die umsatzsteuerfrei oder nicht umsatzsteuerbar sind": 0,
+                "Umsatzsteuerpflichtige Betriebseinnahmen": 0,
+                "Vereinnahmte Umsatzsteuer sowie Umsatzsteuer auf unentgeltliche Wertabgaben": 0
+            },
+            "Sonstige Betriebseinnahmen": {
+                "Vom Finanzamt erstattete und ggf. verrechnete Umsatzsteuer": 0,
+                "Sonstige Sach- Nutzungs- und Leistungsentnahmen": 0
+            }
+        },
+        "4 - 2. Betriebsausgaben": {
+            "Betriebsausgaben": {
+                "Bezogene Leistungen": 0
+            },
+            "Absetzung für Abnutzung (AfA)": {
+                "Anlage AVEÜR": 0,
+                "geringwertige Wirtschaftsgüter": 0
+            },
+            "Sonstige unbeschränkt abziehbare Betriebsausgaben": {
+                "Aufwendungen für Telekommunikation": 0,
+                "Fortbildungskosten": 0,
+                "Gebühren": 0,
+                "Rechts- und Steuerberatung, Buchführung": 0,
+                "Laufende EDV-Kosten": 0,
+                "Arbeitsmittel": 0,
+                "Werbekosten": 0,
+                "Gezahlte Vorsteuerbeträge": 0,
+                "An das Finanzamt gezahlte und ggf. verrechnete Umsatzsteuer": 0
+            }
+        }
+    },
+    "ESt":{
+        "Beiträge anderer Personen": {
+            "Krankenversicherungen": 0,
+            "Pflegeversicherungen": 0
+        },
+        "Gewinn als Einzelunternehmer": 0    
+    },
+    "USt": {
+        "3 - B. Angaben zur Besteuerung der Kleinunternehmer (§ 19 Absatz 1 UStG)": 0,
+        "9 - H. Leistungsempfänger als Steuerschuldner (§ 13b UStG)": 0
+    }
+}
