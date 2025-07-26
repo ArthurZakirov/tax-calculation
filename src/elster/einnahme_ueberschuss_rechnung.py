@@ -11,7 +11,20 @@ from src.elster.umsatz_steuererklaerung import BRUTTO_TO_UST
 from src.elster.utils import sum_of_category_abs
 
 
-def calculate_eur(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[Dict[str, Any], float, float, float]:
+def label_vat_paid_transactions(df):
+    is_negative_brutto_in_germany = (
+        (df["Amount (EUR)"] < 0)
+        & (df["Brutto / Netto"] == "Brutto")
+        & (df["Country"] == "GER")
+    )
+    df.loc[is_negative_brutto_in_germany, "ELSTER Kategorie"] = (
+        "Gezahlte Vorsteuerbeträge"
+    )
+
+
+def calculate_eur(
+    df: pd.DataFrame, schema: Dict[str, Any]
+) -> Tuple[Dict[str, Any], float, float, float]:
     """Calculate the EÜR section of the ELSTER schema.
 
     Parameters
@@ -29,41 +42,32 @@ def calculate_eur(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[Dict[str, A
     """
 
     results = deepcopy(schema)
+    label_vat_paid_transactions(df)
+
+    # Initialize the EÜR section
+    ausgaben = results["EÜR"]["4 - 2. Betriebsausgaben"]
+    leistungen = ausgaben["Betriebsausgaben"]
+    afa = ausgaben["Absetzung für Abnutzung (AfA)"]
+    sonstige = ausgaben["Sonstige unbeschränkt abziehbare Betriebsausgaben"]
 
     # Ausgaben
-    leistungen = results["EÜR"]["4 - 2. Betriebsausgaben"]["Betriebsausgaben"]
-    leistungen["Bezogene Leistungen"] = sum_of_category_abs(df, "Bezogene Leistungen")
-    leistungen_sum = sum(leistungen.values())
-
-    afa = results["EÜR"]["4 - 2. Betriebsausgaben"]["Absetzung für Abnutzung (AfA)"]
-    for category in list(afa.keys()):
-        afa[category] = sum_of_category_abs(df, category)
-    afa_sum = sum(afa.values())
-
-    sonstige = results["EÜR"]["4 - 2. Betriebsausgaben"][
-        "Sonstige unbeschränkt abziehbare Betriebsausgaben"
-    ]
-    for category in list(sonstige.keys()):
-        if category == "Gezahlte Vorsteuerbeträge":
-            continue  # this is handled separately
-        sonstige[category] = sum_of_category_abs(df, category)
-    sonstige["Gezahlte Vorsteuerbeträge"] = abs(
-        (
-            df[
-                (df["Amount (EUR)"] > 0)
-                & (df["Brutto / Netto"] == "Brutto")
-                & (df["Country"] == "GER")
-            ]["Amount (EUR)"]
-            * BRUTTO_TO_UST
-        ).sum()
-    )
-    sonstige_sum = sum(sonstige.values())
+    for ausgaben_kategorie in ausgaben.keys():
+        for subcategory in ausgaben[ausgaben_kategorie].keys():
+            multiplier = (
+                BRUTTO_TO_UST if subcategory == "Gezahlte Vorsteuerbeträge" else 1
+            )
+            ausgaben[ausgaben_kategorie][subcategory] = (
+                multiplier
+                * sum_of_category_abs(df, ausgaben[ausgaben_kategorie][subcategory])
+            )
 
     # Einnahmen
     refunds = sum_of_category_abs(df, "Sonstige Sach- Nutzungs- und Leistungsentnahmen")
 
     # Bilanz
-    gewinn = refunds - (leistungen_sum + afa_sum + sonstige_sum)
+    gewinn = refunds - (
+        sum(leistungen.values()) + sum(afa.values()) + sum(sonstige.values())
+    )
 
     # Transfers
     privat_entnahme = sum_of_category_abs(df, "Privateentnahme")
