@@ -17,4 +17,5 @@ def load_processed_transactions():
 
 
 def load_elster_schema(schema_path="elster_schema.json"):
-    return json.load(open(schema_path, "r", encoding="utf-8"))
+    with open(schema_path, "r", encoding="utf-8") as f:
+        return json.load(f)
