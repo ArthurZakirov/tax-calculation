@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def sum_of_category_abs(df: pd.DataFrame, category: str) -> float:
+def sum_of_category_abs(df: pd.DataFrame, category: str, column: str="ELSTER Kategorie") -> float:
     """
     Sums the absolute values of the 'Amount (EUR)' column for a given ELSTER category.
     """
-    return round(abs(df[df["ELSTER Kategorie"].str.contains(category)]["Amount (EUR)"].sum().item()), 2)
+    return round(abs(df[df[column].str.contains(category)]["Amount (EUR)"].sum().item()), 2)
 
 
 def load_processed_transactions():
