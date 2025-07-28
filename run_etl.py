@@ -38,6 +38,7 @@ def run_pipeline(banks, processed_path):
     ]
     df = pd.concat(dfs, ignore_index=True, axis=0)
     df = determine_tax_obligations(df)
+    print(df)
     df.to_csv(processed_path, index=False)
 
 
