@@ -44,9 +44,9 @@ def calculate_eur(
 
 
 def calculate_gewinn(results: Dict[str, Any]) -> Dict[str, float]:
-    bilanz = {key: sum_of_dict_children(results[key]) for key in results.keys()}
+    bilanz = {key: round(sum_of_dict_children(results[key]), 2) for key in results.keys()}
     bilanz["Gewinn"] = (
-        bilanz["3 - 1. Betriebseinnahmen"] - bilanz["4 - 2. Betriebsausgaben"]
+        round(bilanz["3 - 1. Betriebseinnahmen"] + bilanz["4 - 2. Betriebsausgaben"], 2)
     )
     return bilanz
 
