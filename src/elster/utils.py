@@ -4,12 +4,11 @@ import pandas as pd
 from dotenv import load_dotenv
 load_dotenv()
 
+def round_abs_sum_item(series: pd.Series) -> float:
+    return round(abs(series.sum().item()), 2)
 
 def sum_of_category_abs(df: pd.DataFrame, category: str, column: str="ELSTER Kategorie") -> float:
-    """
-    Sums the absolute values of the 'Amount (EUR)' column for a given ELSTER category.
-    """
-    return round(abs(df[df[column].str.contains(category)]["Amount (EUR)"].sum().item()), 2)
+    return round_abs_sum_item(df[df[column].str.contains(category)]["Amount (EUR)"])
 
 
 def load_processed_transactions():

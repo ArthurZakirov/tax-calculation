@@ -1,6 +1,8 @@
 import pandas as pd
+from functools import partial
 from src.etl.utils import to_float
-
+from src.filter import count_as_business
+from src.filter import is_business_related
 
 COLS = {
     "N26": {
@@ -21,40 +23,55 @@ COLS = {
             "Letztes Jahr verwendet",
         ],
     },
+    "STRIPE": {
+        "Native": ["Name", "Amount", "Fee", "Net"],
+    },
 }
 
+SELECTED_COLS = {
+    "N26": COLS["N26"]["Native"] + COLS["N26"]["Custom"],
+    "PSD": COLS["PSD"]["Native"] + COLS["PSD"]["Custom"],
+    "STRIPE": COLS["STRIPE"]["Native"],
+}
+COMMA_COLS = {"N26": [], "PSD": ["Betrag"], "STRIPE": ["Amount", "Fee", "Net"]}
+RENAME_COLS = {
+    "N26": {"Name": "Name Zahlungsbeteiligter"},
+    "PSD": {"Betrag": "Amount (EUR)"},
+    "STRIPE": {"Amount": "Amount (EUR)", "Fee": "Fee (EUR)", "Net": "Net (EUR)"},
+}
 
-def process_stripe(df: pd.DataFrame) -> pd.DataFrame:
-    df_out = df.copy()
-    df_out["Amount"] = to_float(df_out["Amount"])
-    df_out["Fee"] = to_float(df_out["Fee"])
-    df_out["Net"] = to_float(df_out["Net"])
-    return df_out
+FILTER_ROWS = {
+    "N26": lambda df: df,
+    "PSD": lambda df: df[is_business_related(df) & count_as_business(df)],
+    "STRIPE": lambda df: df,
+}
+
+FINAL_COLS = [
+    "Name Zahlungsbeteiligter",
+    "Amount (EUR)",
+    "ELSTER Kategorie",
+    "Brutto / Netto",
+    "Country",
+    "Reverse Charge Remark",
+]
+FILLNA = {"N26": {}, "PSD": {"Brutto / Netto": "Brutto", }, "STRIPE": {}}
 
 
-def process_psd(df: pd.DataFrame) -> pd.DataFrame:
-    df_out = df.copy()
-    df_out = df_out[COLS["PSD"]["Native"] + COLS["PSD"]["Custom"]]
-    df_out["Betrag"] = to_float(df_out["Betrag"])
-    df_out["Brutto / Netto"] = "Brutto"
-    df_out = df_out.rename(columns={"Betrag": "Amount (EUR)"})
-    df_out = df_out[
-        (df_out["Business Related"] == "business")
-        & (df_out["Count as Business"] != "Personal")
-    ]
-    df_out = df_out.drop(columns=["Count as Business", "Business Related"])
-    return df_out
-
-
-def process_n26(df: pd.DataFrame) -> pd.DataFrame:
-    df_out = df.copy()
-    df_out = df_out[COLS["N26"]["Native"] + COLS["N26"]["Custom"]]
-    df_out = df_out.rename(columns={"Name": "Name Zahlungsbeteiligter"})
-    return df_out
+def process_data(df: pd.DataFrame, bank: str) -> pd.DataFrame:
+    df = df.copy()
+    for format_col in COMMA_COLS[bank]:
+        df[format_col] = to_float(df[format_col])
+    df = df[SELECTED_COLS[bank]]
+    df = df.rename(columns=RENAME_COLS[bank])
+    df = FILTER_ROWS[bank](df)
+    for bank in COLS.keys():
+        drop_cols = set(df.columns) - set(FINAL_COLS)
+        df = df.drop(columns=drop_cols, errors='ignore')
+    for col, value in FILLNA[bank].items():
+        df[col] = value
+    return df
 
 
 process_fn: dict[str, callable] = {
-    "STRIPE": process_stripe,
-    "PSD": process_psd,
-    "N26": process_n26,
+    bank: partial(process_data, bank=bank) for bank in COLS.keys()
 }

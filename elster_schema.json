@@ -22,7 +22,7 @@
             },
             "Absetzung für Abnutzung (AfA)": {
                 "Anlage AVEÜR": 0,
-                "geringwertige Wirtschaftsgüter": 0
+                "GWG": 0
             },
             "Sonstige unbeschränkt abziehbare Betriebsausgaben": {
                 "Aufwendungen für Telekommunikation": 0,
@@ -53,6 +53,15 @@
     },
     "USt": {
         "3 - B. Angaben zur Besteuerung der Kleinunternehmer (§ 19 Absatz 1 UStG)": 0,
-        "9 - H. Leistungsempfänger als Steuerschuldner (§ 13b UStG)": 0
+        "9 - H. Leistungsempfänger als Steuerschuldner (§ 13b UStG)": {
+            "im übrigen Gemeinschaftsgebiet ansässigen Unternehmers (§ 13b Absatz 1 UStG)": {
+                "Bemessungsgrundlage ohne Umsatzsteuer": 0,
+                "Steuer": 0
+            },
+            "Andere Leistungen (§ 13b Absatz 2 Nummer 1, 2, 4 bis 12 UStG)": {
+                "Bemessungsgrundlage ohne Umsatzsteuer": 0,
+                "Steuer": 0
+            }
+        }
     }
 }

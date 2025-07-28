@@ -6,10 +6,14 @@ from copy import deepcopy
 from typing import Any, Dict, Optional
 
 import pandas as pd
+from filter import is_expense, is_brutto, is_eu, is_usa, is_netto
 
 UST_SATZ = 0.19
-BRUTTO_TO_UST = round(UST_SATZ / (1 + UST_SATZ), 2)
+BRUTTO_TO_NETTO = round(1 / (1 + UST_SATZ), 2)
+BRUTTO_TO_UST = round(UST_SATZ * BRUTTO_TO_NETTO, 2)
 
+def amount_sum(df: pd.DataFrame) -> float:
+    return round(abs(df["Amount (EUR)"].sum().item()), 2)
 
 def calculate_ust(
     df: pd.DataFrame, schema: Optional[Dict[str, Any]] = None
@@ -31,17 +35,8 @@ def calculate_ust(
         will be available under the key ``"schema"`` in the returned
         dictionary.
     """
-
-    legit_rc = abs(
-        df[(df["Country"].isin(["USA", "EU"])) & (df["Brutto / Netto"] == "Netto")][
-            "Amount (EUR)"
-        ].sum()
-    )
-    double_rc = abs(
-        df[(df["Country"].isin(["USA", "EU"])) & (df["Brutto / Netto"] == "Brutto")][
-            "Amount (EUR)"
-        ].sum()
-    )
+    legit_rc = amount_sum(df[(is_usa(df) | is_eu(df)) & is_netto(df) & is_expense(df)])
+    double_rc = amount_sum(df[(is_usa(df) | is_eu(df)) & is_brutto(df) & is_expense(df)])
     reverse_charge_soll = legit_rc + double_rc
 
     result = {
@@ -53,9 +48,9 @@ def calculate_ust(
     if schema is not None:
         schema_copy = deepcopy(schema)
         ust = schema_copy.setdefault("USt", {})
-        ust[
-            "9 - H. Leistungsempfänger als Steuerschuldner (§ 13b UStG)"
-        ] = reverse_charge_soll
+        ust["9 - H. Leistungsempfänger als Steuerschuldner (§ 13b UStG)"] = (
+            reverse_charge_soll
+        )
         result["schema"] = schema_copy
 
     return result

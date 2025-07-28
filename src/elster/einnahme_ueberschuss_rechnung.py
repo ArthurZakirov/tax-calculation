@@ -7,19 +7,8 @@ from typing import Any, Dict
 
 import pandas as pd
 
-from src.elster.umsatz_steuererklaerung import BRUTTO_TO_UST
 from src.elster.utils import sum_of_category_abs
-
-
-def label_vat_paid_transactions(df):
-    is_negative_brutto_in_germany = (
-        (df["Amount (EUR)"] < 0)
-        & (df["Brutto / Netto"] == "Brutto")
-        & (df["Country"] == "GER")
-    )
-    vorsteuer_col = "Gezahlte Vorsteuerbeträge"
-    df[vorsteuer_col] = False
-    df.loc[is_negative_brutto_in_germany, vorsteuer_col] = True
+from src.tax.tax import TaxAlias
 
 
 def calculate_eur(df: pd.DataFrame, schema: Dict[str, Any]) -> Dict[str, Any]:
@@ -40,7 +29,6 @@ def calculate_eur(df: pd.DataFrame, schema: Dict[str, Any]) -> Dict[str, Any]:
     """
 
     results = deepcopy(schema)
-    label_vat_paid_transactions(df)
 
     # Initialize the EÜR section
     ausgaben = results["EÜR"]["4 - 2. Betriebsausgaben"]
@@ -52,15 +40,14 @@ def calculate_eur(df: pd.DataFrame, schema: Dict[str, Any]) -> Dict[str, Any]:
     # TODO: fix hädlerbund (steuerberatung kosten), auch related zu dem brutto bug
     # TODO: handle business expenses for EDV from personal accounts (psd / advancia) properly
     # TODO: Gebühren N26 Zahlung fehlt hier (wahrscheinlich selber bug bezogen auf Brutto vorsteuer)
-    for ausgaben_kategorie in ausgaben.keys():
-        for subcategory in ausgaben[ausgaben_kategorie].keys():
-            pointer = ausgaben[ausgaben_kategorie][subcategory]
-
-            # TODO: fix bug: Afa gehört nicht zur gezahlte Vorsteuerbeträge
-            if subcategory == "Gezahlte Vorsteuerbeträge":
-                column = "ELSTER Kategorie"
-                multiplier = BRUTTO_TO_UST
-            pointer = sum_of_category_abs(df, category=subcategory)
+    # TODO: alle expenses wo ich brutto für vorsteuer angebe, muss ich auf netto umrechnen für EÜR
+    for kategorie in ausgaben.keys():
+        for subcategory in ausgaben[kategorie].keys():
+            if subcategory == TaxAlias.VORSTEUER:
+                continue
+            ausgaben[kategorie][subcategory] = sum_of_category_abs(
+                df, category=subcategory
+            )
 
     # Einnahmen
     einnahmen = results["EÜR"]["3 - 1. Betriebseinnahmen"]["Sonstige Betriebseinnahmen"]
