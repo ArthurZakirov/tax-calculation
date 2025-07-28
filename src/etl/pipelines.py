@@ -1,7 +1,7 @@
 import pandas as pd
 from functools import partial
 from src.etl.utils import to_float
-from src.filter import count_as_business
+from src.filter import count_as_business, is_kv
 from src.filter import is_business_related
 
 COLS = {
@@ -43,7 +43,7 @@ RENAME_COLS = {
 
 FILTER_ROWS = {
     "N26": lambda df: df,
-    "PSD": lambda df: df[is_business_related(df) & count_as_business(df)],
+    "PSD": lambda df: df[(is_business_related(df) & count_as_business(df)) | is_kv(df)],
     "STRIPE": lambda df: df,
 }
 

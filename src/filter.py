@@ -48,6 +48,10 @@ def is_business_related(df: pd.DataFrame) -> pd.Series:
     return df["Business Related"].str.lower() == "business"
 
 
+def is_kv(df: pd.DataFrame) -> pd.Series:
+    return df["ELSTER Kategorie"] == "Krankenversicherungen"
+
+
 def count_this_year(df: pd.DataFrame) -> pd.Series:
     return df["Letztes Jahr verwendet"] == "Nein"
 
