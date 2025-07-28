@@ -46,3 +46,7 @@ def count_as_business(df: pd.DataFrame) -> pd.Series:
 
 def is_business_related(df: pd.DataFrame) -> pd.Series:
     return df["Business Related"].str.lower() == "business"
+
+
+def count_this_year(df: pd.DataFrame) -> pd.Series:
+    return df["Letztes Jahr verwendet"] == "Nein"

@@ -8,6 +8,7 @@ from typing import Any, Dict
 import pandas as pd
 
 from src.elster.utils import sum_of_category_abs
+from src.filter import count_this_year
 
 KV_BASISSATZ = 0.14
 KV_BKK_ZUSATZ = 0.0299

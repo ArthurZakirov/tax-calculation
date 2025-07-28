@@ -21,6 +21,7 @@ COLS = {
             "Business Related",
             "ELSTER Kategorie",
             "Letztes Jahr verwendet",
+            "Country",
         ],
     },
     "STRIPE": {
@@ -53,6 +54,7 @@ FINAL_COLS = [
     "Brutto / Netto",
     "Country",
     "Reverse Charge Remark",
+    "Letztes Jahr verwendet"
 ]
 FILLNA = {"N26": {}, "PSD": {"Brutto / Netto": "Brutto", }, "STRIPE": {}}
 
