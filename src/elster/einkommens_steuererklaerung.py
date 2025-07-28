@@ -17,36 +17,17 @@ PV_SATZ = 0.034
 
 
 def calculate_est(
-    df: pd.DataFrame, schema: Dict[str, Any], gewinn: float
+    df: pd.DataFrame, est_schema: Dict[str, Any], gewinn: float
 ) -> Dict[str, Any]:
-    """Populate the ESt section of the schema.
 
-    Parameters
-    ----------
-    df:
-        Processed transactions.
-    schema:
-        Base ELSTER schema.
-    gewinn:
-        Profit computed from the EÜR.
+    ESt = deepcopy(est_schema)
 
-    Returns
-    -------
-    Dict[str, Any]
-        Updated copy of the schema containing the calculated ESt values.
-    """
+    kv_plus_pv = sum_of_category_abs(df[count_this_year(df)], "Krankenversicherungen")
+    ESt["Gewinn als Einzelunternehmer"] = gewinn
 
-    results = deepcopy(schema)
+    kv = kv_plus_pv * KV_SATZ / (KV_SATZ + PV_SATZ)
+    pv = kv_plus_pv * PV_SATZ / (KV_SATZ + PV_SATZ)
 
-    kv_und_pv = sum_of_category_abs(
-        df[df["Letztes Jahr verwendet"] == "Nein"], "Krankenversicherungen"
-    )
-    results["ESt"]["Gewinn als Einzelunternehmer"] = gewinn
-    results["ESt"]["Beiträge anderer Personen"]["Krankenversicherungen"] = (
-        kv_und_pv * KV_SATZ / (KV_SATZ + PV_SATZ)
-    )
-    results["ESt"]["Beiträge anderer Personen"]["Pflegeversicherungen"] = (
-        kv_und_pv * PV_SATZ / (KV_SATZ + PV_SATZ)
-    )
-
-    return results
+    ESt["Beiträge anderer Personen"]["Krankenversicherungen"] = kv
+    ESt["Beiträge anderer Personen"]["Pflegeversicherungen"] = pv
+    return ESt

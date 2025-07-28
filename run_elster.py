@@ -1,8 +1,16 @@
-import json
 from argparse import ArgumentParser
 import os
-from src.elster.utils import load_elster_schema, load_processed_transactions
-from src.elster.einnahme_ueberschuss_rechnung import calculate_eur
+from src.elster.einkommens_steuererklaerung import calculate_est
+from src.io_utils import load_processed_transactions
+from src.io_utils import load_elster_schema
+from src.elster.einnahme_ueberschuss_rechnung import (
+    calculate_gewinn,
+    calculate_eur,
+    calculate_transfers,
+)
+from src.io_utils import write_results_to_json
+from src.io_utils import log_results
+from src.tax.tax import aggregate_tax_obligations
 
 
 def parse_args():
@@ -16,7 +24,7 @@ def parse_args():
     parser.add_argument(
         "--euer_output_path",
         type=str,
-        default="euer_output.json",
+        default="output/euer_output.json",
         help="Path to save EÜR output.",
     )
     return parser.parse_args()
@@ -24,13 +32,22 @@ def parse_args():
 
 def run_elster_calculation(processed_path, euer_output_path):
     """Run the EÜR calculation and save the results."""
-    df = load_processed_transactions(processed_path)
+    # load
+    df = load_processed_transactions()
     elster_schema = load_elster_schema()
 
-    results = calculate_eur(df=df, schema=elster_schema)
+    results = {}
+    results["EÜR"] = calculate_eur(df=df, euer_schema=elster_schema["EÜR"])
+    results["Bilanz"] = calculate_gewinn(results["EÜR"])
+    results["Transfers"] = calculate_transfers(df)
+    results["Taxes"] = aggregate_tax_obligations(df, pay_for_incorrect_rc=False)
 
-    with open(euer_output_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=4, ensure_ascii=False)
+    results["ESt"] = calculate_est(
+        df=df, est_schema=elster_schema["ESt"], gewinn=results["Bilanz"]["Gewinn"]
+    )
+
+    for title, result_dict in results.items():
+        log_results(result_dict, title)
 
 
 if __name__ == "__main__":

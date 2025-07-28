@@ -1,20 +1,24 @@
-import json
-import os
 import pandas as pd
+from typing import Dict
 from dotenv import load_dotenv
+
 load_dotenv()
+
 
 def round_abs_sum_item(series: pd.Series) -> float:
     return round(abs(series.sum().item()), 2)
 
-def sum_of_category_abs(df: pd.DataFrame, category: str, column: str="ELSTER Kategorie") -> float:
-    return round_abs_sum_item(df[df[column].str.contains(category)]["Amount (EUR)"])
+
+def sum_of_category_abs(
+    df: pd.DataFrame,
+    category: str,
+    filter_column: str = "ELSTER Kategorie",
+    value_column: str = "Amount (EUR)",
+) -> float:
+    return round_abs_sum_item(
+        df[df[filter_column].str.contains(category)][value_column]
+    )
 
 
-def load_processed_transactions():
-    return pd.read_csv(os.getenv("PROCESSED_TRANSACTIONS"))
-
-
-def load_elster_schema(schema_path="elster_schema.json"):
-    with open(schema_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def sum_of_dict_children(d: Dict[str, Dict[str, float]]) -> float:
+    return sum(sum(d[kategorie].values()) for kategorie in d.keys())
