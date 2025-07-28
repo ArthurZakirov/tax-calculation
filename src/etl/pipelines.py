@@ -64,9 +64,10 @@ def process_data(df: pd.DataFrame, bank: str) -> pd.DataFrame:
     df = df[SELECTED_COLS[bank]]
     df = df.rename(columns=RENAME_COLS[bank])
     df = FILTER_ROWS[bank](df)
-    for bank in COLS.keys():
-        drop_cols = set(df.columns) - set(FINAL_COLS)
-        df = df.drop(columns=drop_cols, errors='ignore')
+
+    drop_cols = set(df.columns) - set(FINAL_COLS)
+    df = df.drop(columns=drop_cols, errors="ignore")
+
     for col, value in FILLNA[bank].items():
         df[col] = value
     return df
