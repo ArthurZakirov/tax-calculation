@@ -22,7 +22,7 @@ def parse_args():
         "--banks",
         type=str,
         nargs="+",
-        default=["PSD", "N26"],
+        default=["PSD", "N26", "STRIPE"],
         help="List of banks to process.",
     )
     return parser.parse_args()

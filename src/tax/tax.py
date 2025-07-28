@@ -9,6 +9,7 @@ from src.advanced_filter import (
     is_taxfree_expense,
     is_ger_brutto_expense,
 )
+from src.filter import is_brutto, is_netto, is_tax_free_income
 from src.advanced_filter import is_eu_netto_expense
 from src.advanced_filter import is_eu_brutto_expense
 from src.advanced_filter import is_usa_brutto_expense
@@ -47,17 +48,21 @@ def determine_tax_obligations(df: pd.DataFrame) -> pd.DataFrame:
 
     conversion = [
         (
-            is_netto_expense,
+            is_netto,
             {NETTO_COL: 1, STEUER_COL: NETTO_TO_UST, BRUTTO_COL: NETTO_TO_BRUTTO},
         ),
         (
-            is_brutto_expense,
+            is_brutto,
             {NETTO_COL: BRUTTO_TO_NETTO, STEUER_COL: BRUTTO_TO_UST, BRUTTO_COL: 1},
         ),
         (
             is_taxfree_expense,
             {NETTO_COL: 1, STEUER_COL: 0, BRUTTO_COL: 1},
         ),
+        (
+            is_tax_free_income,
+            {NETTO_COL: 1, STEUER_COL: 0, BRUTTO_COL: 1},
+        )
     ]
 
     for filter_func, conversion_dict in conversion:
@@ -153,5 +158,3 @@ def aggregate_tax_obligations(
                 results[key] += elster_metric_sum
 
     return unflatten_dict(dict(results))
-
-

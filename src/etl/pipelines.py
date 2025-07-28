@@ -54,9 +54,29 @@ FINAL_COLS = [
     "Brutto / Netto",
     "Country",
     "Reverse Charge Remark",
-    "Letztes Jahr verwendet"
+    "Letztes Jahr verwendet",
+    "Business Related",
+    "Count as Business",
 ]
-FILLNA = {"N26": {}, "PSD": {"Brutto / Netto": "Brutto", }, "STRIPE": {}}
+FILLNA = {
+    "N26": {},
+    "PSD": {
+        "Brutto / Netto": "Brutto",
+    },
+    "STRIPE": {},
+}
+
+
+def process_stripe_extra(df: pd.DataFrame) -> pd.DataFrame:
+    fees_as_seperate_transactions = df[df["Type"] == "charge"].copy()
+    fees_as_seperate_transactions["Amount (EUR)"] = -fees_as_seperate_transactions[
+        "Fee (EUR)"
+    ]
+    fees_as_seperate_transactions["ELSTER Kategorie"] = "Gebühren"
+    fees_as_seperate_transactions["Country"] = "EU"
+    fees_as_seperate_transactions["Name Zahlungsbeteiligter"] = "Stripe Fee"
+    df = pd.concat([df, fees_as_seperate_transactions], ignore_index=True)
+    return df
 
 
 def process_data(df: pd.DataFrame, bank: str) -> pd.DataFrame:
@@ -66,6 +86,9 @@ def process_data(df: pd.DataFrame, bank: str) -> pd.DataFrame:
     df = df[SELECTED_COLS[bank]]
     df = df.rename(columns=RENAME_COLS[bank])
     df = FILTER_ROWS[bank](df)
+
+    if bank == "STRIPE":
+        df = process_stripe_extra(df)
 
     drop_cols = set(df.columns) - set(FINAL_COLS)
     df = df.drop(columns=drop_cols, errors="ignore")

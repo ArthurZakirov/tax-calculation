@@ -50,3 +50,7 @@ def is_business_related(df: pd.DataFrame) -> pd.Series:
 
 def count_this_year(df: pd.DataFrame) -> pd.Series:
     return df["Letztes Jahr verwendet"] == "Nein"
+
+
+def is_tax_free_income(df: pd.DataFrame) -> pd.Series:
+    return df["ELSTER Kategorie"].str.contains("Kleinunternehmer")
