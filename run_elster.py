@@ -27,23 +27,36 @@ def parse_args():
         default="output/euer_output.json",
         help="Path to save EÜR output.",
     )
+    parser.add_argument(
+        "--transaction_cols",
+        nargs="+",
+        default=None,
+        help="Columns to include for transaction details.",
+    )
     return parser.parse_args()
 
 
-def run_elster_calculation(processed_path, euer_output_path):
+def run_elster_calculation(processed_path, euer_output_path, transaction_cols=None):
     """Run the EÜR calculation and save the results."""
     # load
     df = load_processed_transactions()
     elster_schema = load_elster_schema()
 
     results = {}
-    results["EÜR"] = calculate_eur(df=df, euer_schema=elster_schema["EÜR"])
+    results["EÜR"] = calculate_eur(
+        df=df,
+        euer_schema=elster_schema["EÜR"],
+        transaction_cols=transaction_cols,
+    )
     results["Bilanz"] = calculate_gewinn(results["EÜR"])
-    results["Transfers"] = calculate_transfers(df)
+    results["Transfers"] = calculate_transfers(df, transaction_cols=transaction_cols)
     results["Taxes"] = aggregate_tax_obligations(df, pay_for_incorrect_rc=False)
 
     results["ESt"] = calculate_est(
-        df=df, est_schema=elster_schema["ESt"], gewinn=results["Bilanz"]["Gewinn"]
+        df=df,
+        est_schema=elster_schema["ESt"],
+        gewinn=results["Bilanz"]["Gewinn"],
+        transaction_cols=transaction_cols,
     )
 
     for title, result_dict in results.items():
@@ -52,4 +65,8 @@ def run_elster_calculation(processed_path, euer_output_path):
 
 if __name__ == "__main__":
     args = parse_args()
-    run_elster_calculation(args.processed_path, args.euer_output_path)
+    run_elster_calculation(
+        args.processed_path,
+        args.euer_output_path,
+        transaction_cols=args.transaction_cols,
+    )
