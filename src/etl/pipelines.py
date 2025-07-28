@@ -83,7 +83,6 @@ def process_data(df: pd.DataFrame, bank: str) -> pd.DataFrame:
     df = df.copy()
     for format_col in COMMA_COLS[bank]:
         df[format_col] = to_float(df[format_col])
-    df = df[SELECTED_COLS[bank]]
     df = df.rename(columns=RENAME_COLS[bank])
     df = FILTER_ROWS[bank](df)
 
