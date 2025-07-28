@@ -28,7 +28,7 @@
                 "Aufwendungen für Telekommunikation": 0,
                 "Fortbildungskosten": 0,
                 "Gebühren": 0,
-                "Rechts- und Steuerberatung, Buchführung": 0,
+                "Rechts- und Steuerberatung Buchführung": 0,
                 "Laufende EDV-Kosten": 0,
                 "Arbeitsmittel": 0,
                 "Werbekosten": 0,
@@ -42,7 +42,7 @@
             "Krankenversicherungen": 0,
             "Pflegeversicherungen": 0
         },
-        "Gewinn als Einzelunternehmer": 0    
+        "Gewinn als Einzelunternehmer": 0
     },
     "USt": {
         "3 - B. Angaben zur Besteuerung der Kleinunternehmer (§ 19 Absatz 1 UStG)": 0,
