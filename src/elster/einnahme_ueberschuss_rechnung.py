@@ -9,7 +9,7 @@ from src.elster.utils import (
     sum_of_dict_children,
     transactions_of_category,
 )
-from src.tax.tax import BRUTTO_COL
+from src.tax.tax import BRUTTO_COL, AMOUNT_COL
 
 
 def calculate_eur(
@@ -26,7 +26,7 @@ def calculate_eur(
                     val = sum_of_category_abs(
                         df=df,
                         category=subcategory,
-                        value_column=BRUTTO_COL,
+                        value_column=AMOUNT_COL,
                     )
                     if transaction_cols:
                         tx = transactions_of_category(
