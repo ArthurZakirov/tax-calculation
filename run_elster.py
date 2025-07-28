@@ -30,7 +30,7 @@ def parse_args():
     parser.add_argument(
         "--transaction_cols",
         nargs="+",
-        default=None,
+        default=["Name Zahlungsbeteiligter", "Amount (EUR)"],
         help="Columns to include for transaction details.",
     )
     return parser.parse_args()
