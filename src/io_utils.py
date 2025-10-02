@@ -10,9 +10,30 @@ def load_processed_transactions():
     return pd.read_csv(os.getenv("PROCESSED_TRANSACTIONS"))
 
 
+def _format_float_de(x: float) -> str:
+    """Format a float using a German decimal comma, keeping sensible precision."""
+    s = f"{x:.15g}"  # up to ~15 significant digits (safe for double)
+    if "e" in s or "E" in s:  # scientific notation case
+        m, e = (s.split("e") if "e" in s else s.split("E"))
+        return m.replace(".", ",") + "e" + e
+    return s.replace(".", ",")
+
+def _convert_floats_to_de(obj):
+    """Recursively convert floats to German-decimal strings."""
+    if isinstance(obj, float):
+        return _format_float_de(obj)          # becomes "12,34"
+    if isinstance(obj, dict):
+        return {k: _convert_floats_to_de(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_convert_floats_to_de(v) for v in obj]
+    # keep ints/str/bool/None unchanged
+    return obj
+
+
 def print_json(data):
     """Prints JSON data in a formatted way."""
-    print(json.dumps(data, indent=4, ensure_ascii=False))
+    converted = _convert_floats_to_de(data)
+    print(json.dumps(converted, indent=4, ensure_ascii=False))
 
 
 def log_results(results_dict, title):
